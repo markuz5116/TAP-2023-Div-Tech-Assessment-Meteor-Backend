@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class HouseholdType(Enum):
+class HousingType(Enum):
     LANDED = "Landed"
     CONDOMINIUM = "Condominium"
     HDB = "HDB"
