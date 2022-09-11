@@ -120,6 +120,28 @@ cur.execute('''
     $$ LANGUAGE plpgsql;
 ''')
 
+cur.execute('''
+    CREATE OR REPLACE FUNCTION check_for_duplicate() RETURNS TRIGGER AS $$
+    DECLARE
+        rec RECORD;
+    BEGIN
+        SELECT schemeName, pid INTO rec
+        FROM eligible_schemes_for_people
+        WHERE schemeName = NEW.schemeName and pid = NEW.pid;
+
+        if rec IS NULL then
+            RETURN NEW;
+        end if;
+
+        RETURN OLD;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER check_for_duplicate_trigger
+    BEFORE INSERT ON eligible_schemes_for_people
+    FOR EACH ROW EXECUTE FUNCTION check_for_duplicate();
+''')
+
 # Add sample inputs
 cur.execute('INSERT INTO households values'
     '(1, \'landed\'),'
