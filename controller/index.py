@@ -2,10 +2,14 @@ import os
 from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
+from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
+from controller.model.household.household import Household
+from controller.model.household.housing_type import HousingType
 
-from household.model.person import Person
+from controller.model.person import Person
 
 app = Flask(__name__)
+ALL_GRANTS = ['Student Encouragement Bonus', 'Multigeneration Scheme', 'Elder Bonus', 'Baby Sunshine Grant', 'YOLO GST Grant']
 
 def connect_to_db():
     conn = psycopg2.connect(host='localhost',
@@ -62,7 +66,7 @@ def list_households():
 def get_household(id):
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM get_household(%s);', (id))
+    cur.execute('SELECT * FROM get_household(%s);', (id,))
     records = cur.fetchall()
 
     cur.close()
@@ -77,6 +81,17 @@ def get_household(id):
     household = group_households(records)
     return jsonify(household), 200
 
+@app.route('/<grant>', methods=['GET'])
+def get_valid_households(grant):
+    grant = grant.lower()
+    is_valid = GrantSchemeType.is_valid(grant)
+    if not is_valid:
+        resp = {
+            "error": f"Grant must be {ALL_GRANTS}. Got: {grant}"
+        }
+        return jsonify(resp), 403
+    
+    return jsonify(grant), 200
 
 @app.route('/create_household', methods=['POST'])
 def create_household():
@@ -94,7 +109,7 @@ def create_household():
 
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM add_household(%s)', (housing_type))
+    cur.execute('SELECT * FROM add_household(%s)', (housing_type,))
     housing_id = cur.fetchone()[0]
 
     conn.commit()
@@ -111,7 +126,7 @@ def add_family_member(id):
     
     cur.execute('''
         SELECT * FROM households WHERE hid = %s;
-    ''', (id))
+    ''', (id,))
     household = cur.fetchone()
     if not household:
         cur.close()
@@ -124,15 +139,20 @@ def add_family_member(id):
     args = request.args
     pid = args.get('id')
     if not pid:
+        cur.close()
+        conn.close()
         resp = {
             "error": "Missing person id"
         }
         return jsonify(resp), 400
-    cur.execute(f'''
+
+    cur.execute('''
         SELECT * FROM people WHERE pid = %s;
-    ''', (pid))
+    ''', (pid,))
     pid_record = cur.fetchone()
     if pid_record:
+        cur.close()
+        conn.close()
         resp = {
             "error": f"A person with the same id {pid} already exists."
         } 
@@ -140,9 +160,9 @@ def add_family_member(id):
 
     spouse = args.get('spouse')
     if spouse:
-        cur.execute(f'''
+        cur.execute('''
             SELECT * FROM people WHERE pid = %s;
-        ''', (spouse))
+        ''', (spouse,))
         spouse_record = cur.fetchone()
         if not spouse_record:
             cur.close()
@@ -155,7 +175,6 @@ def add_family_member(id):
     is_valid, resp, status_code = Person.is_valid(args)
     if not is_valid:
         return jsonify(resp), status_code
-
 
     name = args.get('name')
     gender = args.get('gender')
@@ -174,9 +193,15 @@ def add_family_member(id):
     cur.close()
     conn.close()
 
+    household = group_households(household)
+
     resp = {
         "Success": "Family member {} was added into house {}.".format(pid, id),
         "household": household
     }
+
+    household_type = household[int(id)]['Housing type']
+    family_members = household[int(id)]['Family members']
+    household = Household(HousingType(household_type), family_members)
 
     return jsonify(resp), 200
