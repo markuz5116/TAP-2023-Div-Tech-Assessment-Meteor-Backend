@@ -7,13 +7,14 @@ from controller.model.grant_scheme.elder_bonus import ElderBonus
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
 from controller.model.grant_scheme.multigeneration_scheme import MutligenerationScheme
 from controller.model.grant_scheme.student_encouragement_bonus import StudentEncouragementBonus
+from controller.model.grant_scheme.yolo_gst_grant import YoloGstGrant
 from controller.model.household.household import Household
 from controller.model.household.housing_type import HousingType
 
 from controller.model.person import Person
 
 app = Flask(__name__)
-ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme(), ElderBonus(), BabySunshineGrant()]
+ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme(), ElderBonus(), BabySunshineGrant(), YoloGstGrant()]
 
 def connect_to_db():
     conn = psycopg2.connect(host='localhost',
@@ -238,8 +239,8 @@ def check_all_grants(household, hid):
             ''' + (input_str))
         else:
             cur.execute('''
-                SELECT * FROM remove_valid_members(%s)
-            ''', (hid, ))
+                SELECT * FROM remove_valid_members(%s, %s)
+            ''', (str(grant), hid, ))
             
         conn.commit()
         cur.close()
