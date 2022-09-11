@@ -175,10 +175,11 @@ class Person():
         return is_valid, resp, status_code
 
 
-    def __init__(self, name, annual_income, dob) -> None:
-        self.name = name
-        self.annual_income = annual_income
-        self.dob = datetime.strptime(dob, '%a, %d %b %Y %H:%M:%S GMT')
+    def __init__(self, pid, annual_income, dob, occupation_type) -> None:
+        self.pid = pid
+        self.annual_income = float(annual_income)
+        self.dob = dob
+        self.occupation_type = occupation_type.lower()
 
     def get_age(self):
-        return date.today() - self.dob.year
+        return date.today().year - self.dob.year
