@@ -29,7 +29,7 @@ def create_household():
 
     conn = connect_to_db()
     cur = conn.cursor()
-    cur.execute(f'SELECT * FROM add_household(\'{housing_type}\')')
+    cur.execute('SELECT * FROM add_household(%s)', (housing_type))
     housing_id = cur.fetchone()[0]
 
     conn.commit()
@@ -44,9 +44,9 @@ def add_family_member(id):
     conn = connect_to_db()
     cur = conn.cursor()
     
-    cur.execute(f'''
-        SELECT * FROM households WHERE hid = {id};
-    ''')
+    cur.execute('''
+        SELECT * FROM households WHERE hid = %s;
+    ''', (id))
     household = cur.fetchone()
     if not household:
         cur.close()
@@ -64,8 +64,8 @@ def add_family_member(id):
         }
         return jsonify(resp), 400
     cur.execute(f'''
-        SELECT * FROM people WHERE pid = \'{pid}\';
-    ''')
+        SELECT * FROM people WHERE pid = %s;
+    ''', (pid))
     pid_record = cur.fetchone()
     if pid_record:
         resp = {
@@ -76,8 +76,8 @@ def add_family_member(id):
     spouse = args.get('spouse')
     if spouse:
         cur.execute(f'''
-            SELECT * FROM people WHERE pid = \'{spouse}\';
-        ''')
+            SELECT * FROM people WHERE pid = %s;
+        ''', (spouse))
         spouse_record = cur.fetchone()
         if not spouse_record:
             cur.close()
