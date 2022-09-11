@@ -183,3 +183,6 @@ class Person():
 
     def get_age(self):
         return date.today().year - self.dob.year
+
+    def get_months(self):
+        return date.today().month - self.dob.month

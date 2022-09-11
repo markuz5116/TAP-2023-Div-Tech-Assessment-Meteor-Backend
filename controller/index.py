@@ -2,6 +2,7 @@ import os
 from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
+from controller.model.grant_scheme.baby_sunshine_grant import BabySunshineGrant
 from controller.model.grant_scheme.elder_bonus import ElderBonus
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
 from controller.model.grant_scheme.multigeneration_scheme import MutligenerationScheme
@@ -12,7 +13,7 @@ from controller.model.household.housing_type import HousingType
 from controller.model.person import Person
 
 app = Flask(__name__)
-ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme(), ElderBonus()]
+ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme(), ElderBonus(), BabySunshineGrant()]
 
 def connect_to_db():
     conn = psycopg2.connect(host='localhost',
