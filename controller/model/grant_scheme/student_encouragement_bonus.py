@@ -11,25 +11,18 @@ class StudentEncouragementBonus(GrantScheme):
         family_members = household.family_members
         is_valid, valid_members = self.get_members_below_16(family_members)
         if not is_valid:
-            return None
-        
-        if not self.has_valid_income(family_members):
-            return None
+            return []
         
         return valid_members
 
     def get_members_below_16(self, family_members: list[Person]):
         valid_members = []
         is_valid = False
+        household_income = 0
         for member in family_members:
+            household_income += member.annual_income
             if member.get_age() < 16:
                 valid_members.append((super().get_type(), member.pid))
                 if member.occupation_type == "student":
                     is_valid = True
-        return is_valid, valid_members
-
-    def has_valid_income(self, family_members: list[Person]):
-        household_income = 0
-        for member in family_members:
-            household_income += member.annual_income
-        return household_income < 200000
+        return is_valid and household_income < 200000, valid_members
