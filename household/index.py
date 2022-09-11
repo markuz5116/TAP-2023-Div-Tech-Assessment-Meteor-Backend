@@ -1,4 +1,5 @@
 import os
+from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
 
@@ -13,7 +14,51 @@ def connect_to_db():
         password=os.environ['DB_PASSWORD'])
     return conn
 
-@app.route('/household', methods=['POST'])
+def group_households(records: List[Tuple]):
+    households = {}
+    for record in records:
+        household_name = record[0]
+        if household_name not in households:
+            household = {
+                'Housing type': record[1],
+                'Family members': []
+            }
+            households[household_name] = household
+
+        household = households[household_name]
+        family_member = {
+            'Name': record[2],
+            'Gender': record[3],
+            'Marital status': record[4],
+            'Spouse': record[5] if record[5] else 'No spouse',
+            'Occupation type': record[6],
+            'Annual income': record[7] if record[7] else 0.00,
+            'DOB': f"{record[8].day}-{record[8].month}-{record[8].year}"
+        }
+        household['Family members'].append(family_member)
+
+    return households
+
+@app.route('/households', methods=['GET'])
+def list_households():
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM list_households();')
+    records = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+
+    if len(records) == 0:
+        resp = {
+            "Success": "There are no households found."
+        }
+        return jsonify(resp), 200
+
+    households = group_households(records)
+    return jsonify(households), 200
+
+@app.route('/create_household', methods=['POST'])
 def create_household():
     housing_type = request.args.get('housing_type')
     if not housing_type:
