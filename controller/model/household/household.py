@@ -1,6 +1,7 @@
-class Household():
-    def __init__(self, household_type, household_members) -> None:
-        self.household_type = household_type
-        self.household_members = household_members
+from controller.model.person import Person
 
-    
+
+class Household():
+    def __init__(self, housing_type, family_members) -> None:
+        self.housing_type = housing_type
+        self.family_members = family_members
