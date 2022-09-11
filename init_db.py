@@ -41,25 +41,14 @@ cur.execute('CREATE TABLE people(pid varchar(9) PRIMARY KEY,'
     ');'
     )
 
-cur.execute('CREATE TABLE eligible_schemes_for_people(scheme_name VARCHAR(100) NOT NULL,'
-    'pid varchar(9) NOT NULL REFERENCES people(pid),'
-    'PRIMARY KEY (scheme_name, pid)'
-    ');'
-    )
-
-# Add sample inputs
-cur.execute('INSERT INTO households values'
-    '(1, \'landed\'),'
-    '(2, \'condominium\'),'
-    '(3, \'hdb\');'
-    )
-
-cur.execute('INSERT INTO people values'
-    '(\'S1111111A\', \'person1\', \'male\', \'single\', NULL, \'studying\', 1, \'1998-12-19\', 1),'
-    '(\'T2222222B\', \'person2\', \'female\', \'married\', \'S3333333C\', \'full-time\', 2000, \'2000-01-01\', 2),'
-    '(\'S3333333C\', \'person3\', \'male\', \'others\', \'T2222222B\', \'part-time\', 300, \'1990-06-30\', 2),'
-    '(\'T4444444B\', \'person4\', \'prefer not to say\', \'single\', NULL, \'studying\', NULL, \'1998-12-19\', 3);'
-    )
+cur.execute('''
+    CREATE TABLE eligible_schemes_for_people(
+        scheme_name VARCHAR(100) NOT NULL,
+        pid varchar(9) NOT NULL REFERENCES people(pid),
+        PRIMARY KEY (scheme_name, pid)
+        CHECK scheme_name in ('student_encouragement_bonus', 'multigeneration_scheme', 'elder_bonus', 'baby_sunshine_grant', 'yolo_gst_grant')
+    );
+    ''')
 
 cur.execute('''
     CREATE OR REPLACE FUNCTION add_household(IN housingType VARCHAR(20))
@@ -117,6 +106,20 @@ cur.execute('''
     END;
     $$ LANGUAGE plpgsql;
 ''')
+
+# Add sample inputs
+cur.execute('INSERT INTO households values'
+    '(1, \'landed\'),'
+    '(2, \'condominium\'),'
+    '(3, \'hdb\');'
+    )
+
+cur.execute('INSERT INTO people values'
+    '(\'S1111111A\', \'person1\', \'male\', \'single\', NULL, \'studying\', 1, \'1998-12-19\', 1),'
+    '(\'T2222222B\', \'person2\', \'female\', \'married\', \'S3333333C\', \'full-time\', 2000, \'2000-01-01\', 2),'
+    '(\'S3333333C\', \'person3\', \'male\', \'others\', \'T2222222B\', \'part-time\', 300, \'1990-06-30\', 2),'
+    '(\'T4444444B\', \'person4\', \'prefer not to say\', \'single\', NULL, \'studying\', NULL, \'1998-12-19\', 3);'
+    )
 
 conn.commit()
 cur.close()
