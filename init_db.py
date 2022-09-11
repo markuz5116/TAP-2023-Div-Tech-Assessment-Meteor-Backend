@@ -43,10 +43,10 @@ cur.execute('CREATE TABLE people(pid varchar(9) PRIMARY KEY,'
 
 cur.execute('''
     CREATE TABLE eligible_schemes_for_people(
-        scheme_name VARCHAR(100) NOT NULL,
+        schemeName VARCHAR(100) NOT NULL,
         pid varchar(9) NOT NULL REFERENCES people(pid),
-        PRIMARY KEY (scheme_name, pid)
-        CHECK scheme_name in ('student_encouragement_bonus', 'multigeneration_scheme', 'elder_bonus', 'baby_sunshine_grant', 'yolo_gst_grant')
+        PRIMARY KEY (schemeName, pid),
+        check (schemeName in ('student encouragement bonus', 'multigeneration scheme', 'elder bonus', 'baby sunshine grant', 'yolo gst grant'))
     );
     ''')
 
@@ -71,15 +71,13 @@ cur.execute('''
 
 cur.execute('''
     CREATE OR REPLACE FUNCTION add_family_member(IN inHid INTEGER, IN pid VARCHAR(9), IN inName VARCHAR(50), IN gender VARCHAR(20), IN maritalStatus VARCHAR(50), IN spouse VARCHAR(9), IN occupationType VARCHAR(50), IN inAnnualIncome NUMERIC(10, 2), IN inDob DATE)
-    RETURNS TABLE (outHid INTEGER, outName VARCHAR(50), outIncome NUMERIC(10, 2), outDob DATE) AS $$
+    RETURNS TABLE (outHid INTEGER, outHousingType VARCHAR(20), outName VARCHAR(50), outGender VARCHAR(20), outMaritalStatus VARCHAR(50), outSpouse VARCHAR(9), outOccupationType VARCHAR(50), outAnnualIncome NUMERIC(10, 2), outDob DATE) AS $$
     BEGIN
         INSERT INTO people VALUES 
         (pid, inName, gender, maritalStatus, spouse, occupationType, inAnnualIncome, inDob, inHid);
 
         RETURN QUERY 
-            SELECT hid, name, annualIncome, dob
-            from people
-            where hid = inHid;
+            SELECT * FROM get_household(inHid);
     END;
     $$ LANGUAGE plpgsql;
 ''')
