@@ -22,7 +22,7 @@ class StudentEncouragementBonus(GrantScheme):
         for member in family_members:
             household_income += member.annual_income
             if member.get_age() < 16:
-                valid_members.append((super().get_type(), member.pid))
+                valid_members.append((str(self), member.pid))
                 if member.occupation_type == "student":
                     is_valid = True
         return is_valid and household_income < 200000, valid_members

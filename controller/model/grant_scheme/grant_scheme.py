@@ -8,5 +8,5 @@ class GrantScheme():
     def get_qualifying_members(self, household: Household):
         raise NotImplementedError()
 
-    def get_type(self):
+    def __str__(self) -> str:
         return str(self.type)
