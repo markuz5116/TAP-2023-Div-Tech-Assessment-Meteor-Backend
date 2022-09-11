@@ -229,10 +229,10 @@ def check_all_grants(household):
     conn = connect_to_db()
     cur = conn.cursor()
     if len(members) > 0:
-        for member in members:
-            cur.execute('''
-                INSERT INTO eligible_schemes_for_people values (%s, %s);
-            ''', (grant.get_type(), member))
+        input_str = ','.join(cur.mogrify("(%s,%s)", x).decode('utf-8') for x in members)
+        cur.execute('''
+            INSERT INTO eligible_schemes_for_people values 
+        ''' + (input_str))
     conn.commit()
     cur.close()
     conn.close()
