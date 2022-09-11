@@ -14,6 +14,7 @@ cur = conn.cursor()
 cur.execute('DROP FUNCTION IF EXISTS add_household;')
 cur.execute('DROP FUNCTION IF EXISTS add_family_member;')
 cur.execute('DROP FUNCTION IF EXISTS list_households;')
+cur.execute('DROP FUNCTION IF EXISTS get_household;')
 
 cur.execute('DROP TABLE IF EXISTS eligible_schemes_for_people;')
 cur.execute('DROP TABLE IF EXISTS people;')
@@ -101,6 +102,18 @@ cur.execute('''
         RETURN QUERY
             SELECT H.hid, H.housingType, P.name, P.gender, P.maritalStatus, P.spouse, P.occupationType, P.annualIncome, P.dob
             FROM people P natural join households H;
+    END;
+    $$ LANGUAGE plpgsql;
+''')
+
+cur.execute('''
+    CREATE OR REPLACE FUNCTION get_household(IN inHid INTEGER)
+    RETURNS TABLE (outHid INTEGER, outHousingType VARCHAR(20), outName VARCHAR(50), outGender VARCHAR(20), outMaritalStatus VARCHAR(50), outSpouse VARCHAR(9), outOccupationType VARCHAR(50), outAnnualIncome NUMERIC(10, 2), outDob DATE) AS $$
+    BEGIN
+        RETURN QUERY
+            SELECT H.hid, H.housingType, P.name, P.gender, P.maritalStatus, P.spouse, P.occupationType, P.annualIncome, P.dob
+            FROM people P natural join households H
+            WHERE H.hid = inHid;
     END;
     $$ LANGUAGE plpgsql;
 ''')
