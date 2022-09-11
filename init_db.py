@@ -142,6 +142,20 @@ cur.execute('''
     FOR EACH ROW EXECUTE FUNCTION check_for_duplicate();
 ''')
 
+cur.execute('''
+    CREATE OR REPLACE FUNCTION remove_valid_members(IN inHid INTEGER)
+    RETURNS VOID AS $$
+    BEGIN
+        DELETE FROM eligible_schemes_for_people
+        WHERE pid = ANY(
+            SELECT pid
+            FROM eligible_schemes_for_people E natural join people P natural join households H
+            where H.hid = inHid
+        );
+    END;
+    $$ LANGUAGE plpgsql;
+''')
+
 # Add sample inputs
 cur.execute('INSERT INTO households values'
     '(1, \'landed\'),'

@@ -3,6 +3,7 @@ from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
+from controller.model.grant_scheme.multigeneration_scheme import MutligenerationScheme
 from controller.model.grant_scheme.student_encouragement_bonus import StudentEncouragementBonus
 from controller.model.household.household import Household
 from controller.model.household.housing_type import HousingType
@@ -10,7 +11,7 @@ from controller.model.household.housing_type import HousingType
 from controller.model.person import Person
 
 app = Flask(__name__)
-ALL_GRANTS = ['Student Encouragement Bonus', 'Multigeneration Scheme', 'Elder Bonus', 'Baby Sunshine Grant', 'YOLO GST Grant']
+ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme()]
 
 def connect_to_db():
     conn = psycopg2.connect(host='localhost',
@@ -88,7 +89,7 @@ def get_valid_households(grant):
     is_valid = GrantSchemeType.is_valid(grant)
     if not is_valid:
         resp = {
-            "error": f"Grant must be {ALL_GRANTS}. Got: {grant}"
+            "error": "Grant must be %s. Got: %s" % (', '.join([str(grant) for grant in ALL_GRANTS]), grant)
         }
         return jsonify(resp), 403
 
@@ -215,7 +216,7 @@ def add_family_member(id):
         family_members.append(Person(pid, annual_income, dob, occupation_type))
 
     household = Household(HousingType(household_type), family_members)
-    check_all_grants(household)
+    check_all_grants(household, id)
 
     resp = {
         "Success": "Family member {} was added into house {}.".format(pid, id)
@@ -223,16 +224,21 @@ def add_family_member(id):
 
     return jsonify(resp), 201
 
-def check_all_grants(household):
-    grant = StudentEncouragementBonus()
-    members = grant.get_qualifying_members(household)
-    conn = connect_to_db()
-    cur = conn.cursor()
-    if len(members) > 0:
-        input_str = ','.join(cur.mogrify("(%s,%s)", x).decode('utf-8') for x in members)
-        cur.execute('''
-            INSERT INTO eligible_schemes_for_people values 
-        ''' + (input_str))
-    conn.commit()
-    cur.close()
-    conn.close()
+def check_all_grants(household, hid):
+    for grant in ALL_GRANTS:
+        members = grant.get_qualifying_members(household)
+        conn = connect_to_db()
+        cur = conn.cursor()
+        if len(members) > 0:
+            input_str = ','.join(cur.mogrify("(%s,%s)", x).decode('utf-8') for x in members)
+            cur.execute('''
+                INSERT INTO eligible_schemes_for_people values 
+            ''' + (input_str))
+        else:
+            cur.execute('''
+                SELECT * FROM remove_valid_members(%s)
+            ''', (hid, ))
+            
+        conn.commit()
+        cur.close()
+        conn.close()
