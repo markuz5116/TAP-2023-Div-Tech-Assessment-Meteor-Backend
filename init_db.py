@@ -59,7 +59,7 @@ cur.execute('''
         SELECT max(hid) INTO maxId
         FROM households;
 
-        maxId := maxId + 1;
+        maxId := COALESCE(maxId + 1, 1);
 
         INSERT INTO households VALUES
         (maxId, housingType);
@@ -71,13 +71,15 @@ cur.execute('''
 
 cur.execute('''
     CREATE OR REPLACE FUNCTION add_family_member(IN inHid INTEGER, IN pid VARCHAR(9), IN inName VARCHAR(50), IN gender VARCHAR(20), IN maritalStatus VARCHAR(50), IN spouse VARCHAR(9), IN occupationType VARCHAR(50), IN inAnnualIncome NUMERIC(10, 2), IN inDob DATE)
-    RETURNS TABLE (outHid INTEGER, outHousingType VARCHAR(20), outName VARCHAR(50), outGender VARCHAR(20), outMaritalStatus VARCHAR(50), outSpouse VARCHAR(9), outOccupationType VARCHAR(50), outAnnualIncome NUMERIC(10, 2), outDob DATE) AS $$
+    RETURNS TABLE (outHousingType VARCHAR(20), outPid VARCHAR(9), outOccupationType VARCHAR(50), outAnnualIncome NUMERIC(10, 2), outDob DATE) AS $$
     BEGIN
         INSERT INTO people VALUES 
         (pid, inName, gender, maritalStatus, spouse, occupationType, inAnnualIncome, inDob, inHid);
 
         RETURN QUERY 
-            SELECT * FROM get_household(inHid);
+            SELECT H.housingType, P.pid, P.occupationType, P.annualIncome, P.dob
+            FROM households H natural join people P
+            where H.hid = inHid;
     END;
     $$ LANGUAGE plpgsql;
 ''')
@@ -110,13 +112,6 @@ cur.execute('INSERT INTO households values'
     '(1, \'landed\'),'
     '(2, \'condominium\'),'
     '(3, \'hdb\');'
-    )
-
-cur.execute('INSERT INTO people values'
-    '(\'S1111111A\', \'person1\', \'male\', \'single\', NULL, \'studying\', 1, \'1998-12-19\', 1),'
-    '(\'T2222222B\', \'person2\', \'female\', \'married\', \'S3333333C\', \'full-time\', 2000, \'2000-01-01\', 2),'
-    '(\'S3333333C\', \'person3\', \'male\', \'others\', \'T2222222B\', \'part-time\', 300, \'1990-06-30\', 2),'
-    '(\'T4444444B\', \'person4\', \'prefer not to say\', \'single\', NULL, \'studying\', NULL, \'1998-12-19\', 3);'
     )
 
 conn.commit()
