@@ -5,6 +5,9 @@ This is the repository for the meteor tech assessment, specifically the backend
 - Database: Postgresql
 - Backend: Flask 
 
+## Class diagram:
+![Class Diagram](diagrams/class_diagram.png)
+
 ## Set up
 1. Install Postgres. 
     - Link: https://www.postgresqltutorial.com/postgresql-getting-started/install-postgresql/
