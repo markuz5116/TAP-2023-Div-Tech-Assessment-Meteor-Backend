@@ -3,6 +3,7 @@ from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
+from controller.model.grant_scheme.student_encouragement_bonus import StudentEncouragementBonus
 from controller.model.household.household import Household
 from controller.model.household.housing_type import HousingType
 
@@ -81,7 +82,7 @@ def get_household(id):
     household = group_households(records)
     return jsonify(household), 200
 
-@app.route('/<grant>', methods=['GET'])
+@app.route('/grant_schemes/<grant>', methods=['GET'])
 def get_valid_households(grant):
     grant = grant.lower()
     is_valid = GrantSchemeType.is_valid(grant)
@@ -90,8 +91,19 @@ def get_valid_households(grant):
             "error": f"Grant must be {ALL_GRANTS}. Got: {grant}"
         }
         return jsonify(resp), 403
-    
-    return jsonify(grant), 200
+
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT * FROM get_eligible_members(%s);
+    ''', (grant,))
+
+    records = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    valid_members = group_households(records)
+    return jsonify(valid_members), 200
 
 @app.route('/create_household', methods=['POST'])
 def create_household():
@@ -187,21 +199,40 @@ def add_family_member(id):
         SELECT * FROM add_family_member(%s, %s, %s, %s, %s, %s, %s, %s, %s);
     ''', (id, pid, name, gender, marital_status, spouse, occupation_type, annual_income, dob))
 
-    household = cur.fetchall()
+    records = cur.fetchall()
 
     conn.commit()
     cur.close()
     conn.close()
 
-    household = group_households(household)
+    household_type = records[0][0]
+    family_members = []
+    for record in records:
+        pid = record[1]
+        occupation_type = record[2]
+        annual_income = record[3] if record[3] else 0
+        dob = record[4]
+        family_members.append(Person(pid, annual_income, dob, occupation_type))
+
+    household = Household(HousingType(household_type), family_members)
+    check_all_grants(household)
 
     resp = {
-        "Success": "Family member {} was added into house {}.".format(pid, id),
-        "household": household
+        "Success": "Family member {} was added into house {}.".format(pid, id)
     }
 
-    household_type = household[int(id)]['Housing type']
-    family_members = household[int(id)]['Family members']
-    household = Household(HousingType(household_type), family_members)
+    return jsonify(resp), 201
 
-    return jsonify(resp), 200
+def check_all_grants(household):
+    grant = StudentEncouragementBonus()
+    members = grant.get_qualifying_members(household)
+    conn = connect_to_db()
+    cur = conn.cursor()
+    if len(members) > 0:
+        for member in members:
+            cur.execute('''
+                INSERT INTO eligible_schemes_for_people values (%s, %s);
+            ''', (grant.get_type(), member))
+    conn.commit()
+    cur.close()
+    conn.close()
