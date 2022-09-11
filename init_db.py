@@ -71,11 +71,16 @@ cur.execute('''
 ''')
 
 cur.execute('''
-    CREATE OR REPLACE FUNCTION add_family_member(IN inHid INTEGER, IN pid VARCHAR(9), IN inName VARCHAR(50), IN gender VARCHAR(20), IN maritalStatus VARCHAR(50), IN spouse VARCHAR(9), IN occupationType VARCHAR(50), IN inAnnualIncome NUMERIC(10, 2), IN inDob DATE)
+    CREATE OR REPLACE FUNCTION add_family_member(IN inHid INTEGER, IN inPid VARCHAR(9), IN inName VARCHAR(50), IN gender VARCHAR(20), IN maritalStatus VARCHAR(50), IN inSpouse VARCHAR(9), IN occupationType VARCHAR(50), IN inAnnualIncome NUMERIC(10, 2), IN inDob DATE)
     RETURNS TABLE (outHousingType VARCHAR(20), outPid VARCHAR(9), outOccupationType VARCHAR(50), outAnnualIncome NUMERIC(10, 2), outDob DATE) AS $$
     BEGIN
         INSERT INTO people VALUES 
-        (pid, inName, gender, maritalStatus, spouse, occupationType, inAnnualIncome, inDob, inHid);
+        (inPid, inName, gender, maritalStatus, inSpouse, occupationType, inAnnualIncome, inDob, inHid);
+
+        if inSpouse IS NOT NULL then
+            UPDATE PEOPLE SET spouse = inPid
+            WHERE pid = inSpouse;
+        end if;
 
         RETURN QUERY 
             SELECT H.housingType, P.pid, P.occupationType, P.annualIncome, P.dob

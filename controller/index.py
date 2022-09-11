@@ -187,6 +187,20 @@ def add_family_member(id):
                 "error": f"Provided spouse id is invalid. Got: {spouse}"
             }
             return jsonify(resp), 403
+        
+        cur.execute('''
+            SELECT *
+            FROM people
+            WHERE spouse = %s
+        ''', (spouse, ))
+        record = cur.fetchone()
+        if record:
+            cur.close()
+            conn.close()
+            resp = {
+                "error": f"Provided spouse id {spouse} is already a spouse of someone else."
+            }
+            return jsonify(resp), 403
 
     is_valid, resp, status_code = Person.is_valid(args)
     if not is_valid:
@@ -212,11 +226,11 @@ def add_family_member(id):
     household_type = records[0][0]
     family_members = []
     for record in records:
-        pid = record[1]
-        occupation_type = record[2]
-        annual_income = record[3] if record[3] else 0
-        dob = record[4]
-        family_members.append(Person(pid, annual_income, dob, occupation_type))
+        rec_pid = record[1]
+        rec_occupation_type = record[2]
+        rec_annual_income = record[3] if record[3] else 0
+        rec_dob = record[4]
+        family_members.append(Person(rec_pid, rec_annual_income, rec_dob, rec_occupation_type))
 
     household = Household(HousingType(household_type), family_members)
     check_all_grants(household, id)
