@@ -58,6 +58,26 @@ def list_households():
     households = group_households(records)
     return jsonify(households), 200
 
+@app.route('/households/<id>', methods=['GET'])
+def get_household(id):
+    conn = connect_to_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM get_household(%s);', (id))
+    records = cur.fetchall()
+
+    cur.close()
+    conn.close()
+    
+    if len(records) == 0:
+        resp = {
+            "error" : f"No household with id {id} found."
+        }
+        return jsonify(resp), 403
+
+    household = group_households(records)
+    return jsonify(household), 200
+
+
 @app.route('/create_household', methods=['POST'])
 def create_household():
     housing_type = request.args.get('housing_type')
