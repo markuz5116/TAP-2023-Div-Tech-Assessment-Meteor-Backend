@@ -143,7 +143,7 @@ cur.execute('''
 ''')
 
 cur.execute('''
-    CREATE OR REPLACE FUNCTION remove_valid_members(IN inHid INTEGER)
+    CREATE OR REPLACE FUNCTION remove_valid_members(IN inSchemeName VARCHAR(100), IN inHid INTEGER)
     RETURNS VOID AS $$
     BEGIN
         DELETE FROM eligible_schemes_for_people
@@ -151,7 +151,7 @@ cur.execute('''
             SELECT pid
             FROM eligible_schemes_for_people E natural join people P natural join households H
             where H.hid = inHid
-        );
+        ) and schemeName = inSchemeName;
     END;
     $$ LANGUAGE plpgsql;
 ''')
