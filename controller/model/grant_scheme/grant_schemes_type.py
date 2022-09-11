@@ -12,3 +12,6 @@ class GrantSchemeType(Enum):
     def is_valid(scheme):
         schemes = [s.value for s in GrantSchemeType]
         return scheme in schemes
+
+    def __str__(self) -> str:
+        return self.value
