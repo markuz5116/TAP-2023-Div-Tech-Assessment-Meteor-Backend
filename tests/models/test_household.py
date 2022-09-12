@@ -1,5 +1,4 @@
 from datetime import datetime
-import pytest
 from controller.model.household.household import Household
 from controller.model.household.housing_type import HousingType
 from controller.model.person import Person
