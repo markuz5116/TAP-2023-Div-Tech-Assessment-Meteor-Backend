@@ -48,6 +48,25 @@ def group_households(records: List[Tuple]):
 
     return households
 
+def check_all_grants(household, hid):
+    for grant in ALL_GRANTS:
+        members = grant.get_qualifying_members(household)
+        conn = connect_to_db()
+        cur = conn.cursor()
+        if len(members) > 0:
+            input_str = ','.join(cur.mogrify("(%s,%s)", x).decode('utf-8') for x in members)
+            cur.execute('''
+                INSERT INTO eligible_schemes_for_people values 
+            ''' + (input_str))
+        else:
+            cur.execute('''
+                SELECT * FROM remove_valid_members(%s, %s)
+            ''', (str(grant), hid, ))
+            
+        conn.commit()
+        cur.close()
+        conn.close()
+
 @app.route('/households', methods=['GET'])
 def list_households():
     conn = connect_to_db()
@@ -240,22 +259,3 @@ def add_family_member(id):
     }
 
     return jsonify(resp), 201
-
-def check_all_grants(household, hid):
-    for grant in ALL_GRANTS:
-        members = grant.get_qualifying_members(household)
-        conn = connect_to_db()
-        cur = conn.cursor()
-        if len(members) > 0:
-            input_str = ','.join(cur.mogrify("(%s,%s)", x).decode('utf-8') for x in members)
-            cur.execute('''
-                INSERT INTO eligible_schemes_for_people values 
-            ''' + (input_str))
-        else:
-            cur.execute('''
-                SELECT * FROM remove_valid_members(%s, %s)
-            ''', (str(grant), hid, ))
-            
-        conn.commit()
-        cur.close()
-        conn.close()
