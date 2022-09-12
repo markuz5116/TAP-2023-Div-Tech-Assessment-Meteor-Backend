@@ -154,11 +154,13 @@ def create_household():
         "Success": f'House added with id: {housing_id}'
         }), 201
 
-@app.route('/household/<id>', methods=['POST'])
-def add_family_member(id):
+@app.route('/add_family_member', methods=['POST'])
+def add_family_member():
+    args = request.args
+    id = args.get('id')
+
     conn = connect_to_db()
     cur = conn.cursor()
-    
     cur.execute('''
         SELECT * FROM households WHERE hid = %s;
     ''', (id,))
@@ -170,9 +172,8 @@ def add_family_member(id):
             "error": "The household id does not exist."
         }
         return jsonify(resp), 400
-
-    args = request.args
-    pid = args.get('id')
+    
+    pid = args.get('pid')
     if not pid:
         cur.close()
         conn.close()
