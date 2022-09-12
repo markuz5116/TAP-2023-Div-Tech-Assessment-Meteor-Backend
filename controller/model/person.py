@@ -122,7 +122,7 @@ class Person():
         is_valid = True
         if not dob:
             resp = {
-                "error": "Missing date of birth."
+                "error": "Missing dob(date of birth)."
             }
             is_valid = False
             status_code = 400

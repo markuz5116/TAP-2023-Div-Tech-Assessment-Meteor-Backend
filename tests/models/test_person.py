@@ -128,7 +128,7 @@ class TestPerson():
         is_valid, status_code, resp = Person.is_dob_valid(dob)
         assert is_valid == False
         assert status_code == 400
-        assert resp == { "error": "Missing date of birth." }
+        assert resp == { "error": "Missing dob(date of birth)." }
 
     def test_is_dob_valid_unknown_format(self):
         dob = 123
