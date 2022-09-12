@@ -45,6 +45,7 @@ This is the repository for the meteor tech assessment, specifically the backend
     - ```
       export FLASK_APP=./controller/index.py
       export FLASK_ENV=development
+      flask run
 ## All Endpoints:
 | Endpoint | Method | Description | Parameters
 | --- | --- | --- | --- |
