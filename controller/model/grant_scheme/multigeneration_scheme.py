@@ -15,7 +15,7 @@ class MutligenerationScheme(GrantScheme):
         
         return [(str(self), member.pid) for member in family_members]
         
-    def has_valid_members(self, family_members) -> List[Tuple] and bool:
+    def has_valid_members(self, family_members) -> bool:
         is_valid = False
         household_income = 0
         for member in family_members:
