@@ -53,5 +53,5 @@ This is the repository for the meteor tech assessment, specifically the backend
 | /households/id | GET |get the specific household with the input id |
 |  /grant_schemes/grant | GET | get the household members who are eligible for the grant |
 | /create_household | POST | create household. | housing_type = landed/condominium/hdb
-| /household/id | POST | adds family member to the household with the id | pid = person's id; gender = male/female/other/prefer not to say; marital_status = single/married/widowed/separated/divorced/others; occupation_type = unemployed/student/employed; dob[date of birth] = YYYY-MM-DD; OPTIONAL: spouse = id of the spouse; OPTIONAL: annual_income must be larger than 0 if included. 
+| /add_member | POST | adds family member to the household with the id | id = housing id; pid = person's id; gender = male/female/other/prefer not to say; marital_status = single/married/widowed/separated/divorced/others; occupation_type = unemployed/student/employed; dob[date of birth] = YYYY-MM-DD; OPTIONAL: spouse = id of the spouse; OPTIONAL: annual_income must be larger than 0 if included. 
     
