@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from controller.model.grant_scheme.grant_scheme import GrantScheme
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
 from controller.model.household.household import Household
@@ -7,14 +8,14 @@ class MutligenerationScheme(GrantScheme):
     def __init__(self) -> None:
         super().__init__(GrantSchemeType.MULTIGENERATION_SCHEME)
 
-    def get_qualifying_members(self, household: Household):
+    def get_qualifying_members(self, household: Household) -> List[Tuple]:
         family_members = household.family_members
         if not self.has_valid_members(family_members):
             return []
         
         return [(str(self), member.pid) for member in family_members]
         
-    def has_valid_members(self, family_members):
+    def has_valid_members(self, family_members) -> List[Tuple] and bool:
         is_valid = False
         household_income = 0
         for member in family_members:

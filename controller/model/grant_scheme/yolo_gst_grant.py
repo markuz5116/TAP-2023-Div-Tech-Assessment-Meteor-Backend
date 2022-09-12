@@ -14,7 +14,7 @@ class YoloGstGrant(GrantScheme):
         valid_members = [(str(self), member.pid) for member in family_members]
         return valid_members
 
-    def has_valid_household_income(self, family_members):
+    def has_valid_household_income(self, family_members) -> bool:
         household_income = 0
         for member in family_members:
             household_income += member.annual_income

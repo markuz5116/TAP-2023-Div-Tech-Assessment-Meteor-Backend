@@ -9,7 +9,7 @@ class GrantSchemeType(Enum):
     YOLO_GST_GRANT = "yolo gst grant"
 
     @staticmethod
-    def is_valid(scheme):
+    def is_valid(scheme: str) -> bool:
         schemes = [s.value for s in GrantSchemeType]
         return scheme in schemes
 

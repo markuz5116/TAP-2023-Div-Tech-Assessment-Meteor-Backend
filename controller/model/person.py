@@ -1,10 +1,9 @@
 from datetime import date, datetime
-from operator import is_
 
 
 class Person():
     @staticmethod
-    def is_name_valid(name):
+    def is_name_valid(name) -> bool and int and dict[str, str]:
         resp = None
         status_code = 200
         is_valid = True
@@ -17,7 +16,7 @@ class Person():
         return is_valid, status_code, resp
 
     @staticmethod
-    def is_gender_valid(gender):
+    def is_gender_valid(gender) -> bool and int and dict[str, str]:
         resp = None
         status_code = 200
         is_valid = True
@@ -41,7 +40,7 @@ class Person():
         return is_valid, status_code, resp
 
     @staticmethod
-    def is_marital_status_valid(marital_status):
+    def is_marital_status_valid(marital_status) -> bool and int and dict[str, str]:
         resp = None
         status_code = 200
         is_valid = True
@@ -65,7 +64,7 @@ class Person():
         return is_valid, status_code, resp
 
     @staticmethod
-    def is_occupation_valid(occupation_type):
+    def is_occupation_valid(occupation_type) -> bool and int and dict[str, str]:
         resp = None
         status_code = 200
         is_valid = True
@@ -96,6 +95,16 @@ class Person():
         if not annual_income:
             return is_valid, status_code, resp
         
+        try:
+            annual_income = float(annual_income)
+        except:
+            resp = {
+                "error": f"Annual income must be numeric. Got {annual_income}"
+            }
+            is_valid = False
+            status_code = 403
+            return is_valid, status_code, resp
+
         if float(annual_income) < 0:
             resp = {
                 "error": f"Annual income must be at least 0. Got: {annual_income}"
@@ -107,7 +116,7 @@ class Person():
         return is_valid, status_code, resp
 
     @staticmethod
-    def is_dob_valid(dob):
+    def is_dob_valid(dob) -> bool and int and dict[str, str]:
         resp = None
         status_code = 200
         is_valid = True
@@ -140,7 +149,7 @@ class Person():
         return is_valid, status_code, resp
 
     @staticmethod
-    def is_valid(args):
+    def is_valid(args) -> bool and dict[str, str] and int:
 
         name = args.get('name')
         is_valid, status_code, resp = Person.is_name_valid(name)
@@ -175,14 +184,14 @@ class Person():
         return is_valid, resp, status_code
 
 
-    def __init__(self, pid, annual_income, dob, occupation_type) -> None:
+    def __init__(self, pid: str, annual_income: float, dob: date, occupation_type: str) -> None:
         self.pid = pid
         self.annual_income = float(annual_income)
         self.dob = dob
         self.occupation_type = occupation_type.lower()
 
-    def get_age(self):
+    def get_age(self) -> int:
         return date.today().year - self.dob.year
 
-    def get_months(self):
+    def get_months(self) -> int:
         return date.today().month - self.dob.month

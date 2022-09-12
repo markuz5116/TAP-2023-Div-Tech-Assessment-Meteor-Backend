@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from controller.model.grant_scheme.grant_scheme import GrantScheme
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
 from controller.model.household.household import Household
@@ -15,7 +16,7 @@ class StudentEncouragementBonus(GrantScheme):
         
         return valid_members
 
-    def get_members_below_16(self, family_members: list[Person]):
+    def get_members_below_16(self, family_members: list[Person]) -> bool and List[Tuple]:
         valid_members = []
         is_valid = False
         household_income = 0
