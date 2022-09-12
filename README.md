@@ -7,7 +7,11 @@ This is the repository for the meteor tech assessment, specifically the backend
 
 ## Class diagram:
 ![Class Diagram](diagrams/class_diagram.png)
-
+## Assumption
+1. Time is static, i.e. the age of the person added won't change. 
+2. A person can only be a family member of one household.
+3. We are more likely to query for the eligible household members than adding family members. 
+    - We will update the eligible members when a person is added rather than when `/grant_schemes/grant` endpoint is queried.
 ## Set up
 1. Install Postgres. 
     - Link: https://www.postgresqltutorial.com/postgresql-getting-started/install-postgresql/
@@ -49,10 +53,4 @@ This is the repository for the meteor tech assessment, specifically the backend
 |  /grant_schemes/grant | GET | get the household members who are eligible for the grant |
 | /create_household | POST | create household. | housing_type = landed/condominium/hdb
 | /household/id | POST | adds family member to the household with the id | pid = person's id; gender = male/female/other/prefer not to say; marital_status = single/married/widowed/separated/divorced/others; occupation_type = unemployed/student/employed; dob[date of birth] = YYYY-MM-DD; OPTIONAL: spouse = id of the spouse; OPTIONAL: annual_income must be larger than 0 if included. 
-
-## Assumption
-1. Time is static, i.e. the age of the person added won't change. 
-2. A person can only be a family member of one household.
-3. We are more likely to query for the eligible household members than adding family members. 
-    - We will update the eligible members when a person is added rather than when `/grant_schemes/grant` endpoint is queried.
     
