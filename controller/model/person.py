@@ -46,7 +46,7 @@ class Person():
         is_valid = True
         if not marital_status:
             resp = {
-                "error": "Missing Marital Status"
+                "error": "Missing marital_status"
             }
             is_valid = False
             status_code = 400
@@ -70,7 +70,7 @@ class Person():
         is_valid = True
         if not occupation_type:
             resp = {
-                "error": "Missing Occupation"
+                "error": "Missing occupation_type"
             }
             is_valid = False
             status_code = 400
@@ -130,7 +130,7 @@ class Person():
 
         try:
             dob = datetime.strptime(dob, "%Y-%m-%d")
-        except ValueError:
+        except (ValueError, TypeError):
             resp = {
                 "error": f'Date format should be YYYY-MM-DD. Got: {dob}'
             }
