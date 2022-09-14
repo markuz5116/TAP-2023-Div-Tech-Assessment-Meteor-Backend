@@ -21,7 +21,7 @@ This is the repository for the meteor tech assessment, specifically the backend
     - Link: https://pip.pypa.io/en/stable/installation/ 
 4. Install Flask and psycopg2-binary
     - ```
-      pip install Flask psycopg2-binary
+      pip install Flask psycopg2-binary Flask_CORS
 5. Clone this repository
 6. Open psql terminal and login
 7. Create a database for this repository

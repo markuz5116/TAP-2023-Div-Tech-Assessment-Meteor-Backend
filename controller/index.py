@@ -2,6 +2,7 @@ import os
 from typing import List, Tuple
 import psycopg2
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from controller.model.grant_scheme.baby_sunshine_grant import BabySunshineGrant
 from controller.model.grant_scheme.elder_bonus import ElderBonus
 from controller.model.grant_scheme.grant_schemes_type import GrantSchemeType
@@ -10,10 +11,10 @@ from controller.model.grant_scheme.student_encouragement_bonus import StudentEnc
 from controller.model.grant_scheme.yolo_gst_grant import YoloGstGrant
 from controller.model.household.household import Household
 from controller.model.household.housing_type import HousingType
-
 from controller.model.person import Person
 
 app = Flask(__name__)
+CORS(app)
 ALL_GRANTS = [StudentEncouragementBonus(), MutligenerationScheme(), ElderBonus(), BabySunshineGrant(), YoloGstGrant()]
 
 def connect_to_db():
