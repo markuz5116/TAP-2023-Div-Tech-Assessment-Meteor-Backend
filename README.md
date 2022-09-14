@@ -24,28 +24,29 @@ This is the repository for the meteor tech assessment, specifically the backend
       pip install Flask psycopg2-binary Flask_CORS
 5. Clone this repository
 6. Open psql terminal and login
-7. Create a database for this repository
-    - ```
-      CREATE DATABASE tap_meteor;
-8. Create a user with full access to the database
-    - ```
-      CREATE USER dev WITH PASSWORD 'password';
-9. Grant the user all administrative access
-    - ```
-      GRANT ALL PRIVILEGES ON DATABASE tap_meteor TO dev;
-10. Ensure that the database and user are created before quitting the terminal.
-11. In the repository directory, export the username and password for the database
-    - ```
-      export DB_USERNAME="dev" && export DB_PASSWORD="password"
-12. Next, run init_db.py
-    - ```
-      python init_db.py
-    - The python script contains the database schema and sample inputs.
-13. To run the Flask app, run
-    - ```
-      export FLASK_APP=./controller/index.py
-      export FLASK_ENV=development
-      flask run
+    1. Create a database for this repository
+        - ```
+          CREATE DATABASE tap_meteor;
+    2. Create a user with full access to the database
+        - ```
+          CREATE USER dev WITH PASSWORD 'password';
+    3. Grant the user all administrative access
+        - ```
+          GRANT ALL PRIVILEGES ON DATABASE tap_meteor TO dev;
+    4. Ensure that the database and user are created before quitting the terminal.
+7. In the repository directory, open a bash terminal
+    1. export the username and password for the database
+        - ```
+          export DB_USERNAME="dev" && export DB_PASSWORD="password"
+    2. Next, run init_db.py
+        - ```
+          python init_db.py
+        - The python script contains the database schema and sample inputs.
+    3. To run the Flask app, run
+        - ```
+          export FLASK_APP=./controller/index.py
+          export FLASK_ENV=development
+          flask run
 ## All Endpoints:
 | Endpoint | Method | Description | Parameters
 | --- | --- | --- | --- |
